@@ -38,16 +38,16 @@
 
    (doseq [lines content]
      (doseq [other (:content lines)]
-       (let [class-name (print-str (:name (:attrs other)))]
-       (if-not (.equals class-name "nil")(spit (int-file-name-from-class class-name) int-imports))
-       (if-not (.equals class-name "nil")(spit (int-file-name-from-class class-name) (inteface-dec class-name) :append true))
-       (if-not (.equals class-name "nil")(spit (imp-file-name-from-class class-name) (imp-imports class-name)))
-       (if-not (.equals class-name "nil")(spit (imp-file-name-from-class class-name) (imp-dec class-name) :append true))
+       (when-let [class-name (:name (:attrs other))]
+       (spit (int-file-name-from-class (print-str class-name)) int-imports)
+       (spit (int-file-name-from-class (print-str class-name)) (inteface-dec (print-str class-name)) :append true)
+       (spit (imp-file-name-from-class (print-str class-name)) (imp-imports (print-str class-name)))
+       (spit (imp-file-name-from-class class-name) (imp-dec (print-str class-name)) :append true)
        (doseq [final (:content other)]
          (let [key-paths (print-str (:name (:attrs final)))]
-         (if-not (.equals class-name "nil")(spit (int-file-name-from-class class-name) (is-equal-from-keypath-int key-paths) :append true))
-         (if-not (.equals class-name "nil")(spit (imp-file-name-from-class class-name) (is-equal-from-keypath-imp-dec key-paths) :append true))
-         (if-not (.equals class-name "nil")(spit (imp-file-name-from-class class-name) (is-equal-from-keypath-imp class-name key-paths) :append true))))
+         (spit (int-file-name-from-class (print-str class-name)) (is-equal-from-keypath-int key-paths) :append true)
+         (spit (imp-file-name-from-class (print-str class-name)) (is-equal-from-keypath-imp-dec key-paths) :append true)
+         (spit (imp-file-name-from-class (print-str class-name)) (is-equal-from-keypath-imp (print-str class-name) key-paths) :append true)))
        )
      )
   )
