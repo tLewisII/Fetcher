@@ -10,6 +10,13 @@
   ;; work around dangerous default behaviour in Clojure
   (alter-var-root #'*read-eval* (constantly false))
 
+  (if (or (empty? args) (> (count args) 1))
+    (do
+      (println "No Model name given, you must provide the name of your CoreData model in the form `predicate modelName`")
+      (System/exit 0)
+      )
+    )
+
   (defn xml-from-file [file] (zip/xml-zip (xml/parse file)))
 
   (defn imp-with-entity-keypath [entity key-path] (apply str ["\tNSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@\""  entity "\"];\n"
@@ -22,7 +29,7 @@
 
   (defn imp-imports [class-name] (apply str ["#import" "\"" class-name "+_FetchRequests.h\"\n\n"]))
 
-  (def content (xml-from-file "Model.xcdatamodeld/Model.xcdatamodel/contents"))
+  (def content (let [model-name (first args)] (xml-from-file (apply str [model-name ".xcdatamodeld/" model-name ".xcdatamodel/contents"]))))
 
   (defn is-equal-from-keypath-int [key-path] (apply str ["+ (NSFetchRequest *)" key-path "IsEqualTo:(id)object;\n"]))
 
@@ -41,16 +48,16 @@
    (doseq [lines content]
      (doseq [other (:content lines)]
        (when-let [class-name (:name (:attrs other))]
-         (spit (int-file-name-from-class (print-str class-name)) (int-class-import class-name))
-         (spit (int-file-name-from-class (print-str class-name)) int-imports :append true)
-         (spit (int-file-name-from-class (print-str class-name)) (inteface-dec (print-str class-name)) :append true)
-         (spit (imp-file-name-from-class (print-str class-name)) (imp-imports (print-str class-name)))
-         (spit (imp-file-name-from-class class-name) (imp-dec (print-str class-name)) :append true)
+         (spit (int-file-name-from-class class-name) (int-class-import class-name))
+         (spit (int-file-name-from-class class-name) int-imports :append true)
+         (spit (int-file-name-from-class class-name) (inteface-dec class-name) :append true)
+         (spit (imp-file-name-from-class class-name) (imp-imports class-name))
+         (spit (imp-file-name-from-class class-name) (imp-dec class-name) :append true)
          (doseq [final (:content other)]
-           (let [key-paths (print-str (:name (:attrs final)))]
-           (spit (int-file-name-from-class (print-str class-name)) (is-equal-from-keypath-int key-paths) :append true)
-           (spit (imp-file-name-from-class (print-str class-name)) (is-equal-from-keypath-imp-dec key-paths) :append true)
-           (spit (imp-file-name-from-class (print-str class-name)) (is-equal-from-keypath-imp (print-str class-name) key-paths) :append true)))
+           (let [key-paths (:name (:attrs final))]
+           (spit (int-file-name-from-class class-name) (is-equal-from-keypath-int key-paths) :append true)
+           (spit (imp-file-name-from-class class-name) (is-equal-from-keypath-imp-dec key-paths) :append true)
+           (spit (imp-file-name-from-class class-name) (is-equal-from-keypath-imp class-name key-paths) :append true)))
        )
      )
   )
@@ -59,6 +66,8 @@
      (doseq [other (:content lines)]
         (when-let [class-name (:name (:attrs other))]
           (spit (int-file-name-from-class class-name) "\n@end\n" :append true)
-          (spit (imp-file-name-from-class class-name) "\n@end\n" :append true)))
+          (spit (imp-file-name-from-class class-name) "\n@end\n" :append true)
+          )
        )
+    )
 )
