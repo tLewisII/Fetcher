@@ -10,6 +10,7 @@
   ;; work around dangerous default behaviour in Clojure
   (alter-var-root #'*read-eval* (constantly false))
 
+  ;; Must pass a model name or nothing will happen
   (if (or (empty? args) (> (count args) 1))
     (do
       (println "No Model name given, you must provide the name of your CoreData model in the form `predicate modelName`")
@@ -29,7 +30,10 @@
 
   (defn imp-imports [class-name] (apply str ["#import" "\"" class-name "+_FetchRequests.h\"\n\n"]))
 
-  (def content (let [model-name (first args)] (xml-from-file (apply str [model-name ".xcdatamodeld/" model-name ".xcdatamodel/contents"]))))
+  (try
+    (def content (let [model-name (first args)] (xml-from-file (apply str [model-name ".xcdatamodeld/" model-name ".xcdatamodel/contents"]))))
+    (catch Exception e (println (.getMessage e)) (System/exit 0))
+    )
 
   (defn is-equal-from-keypath-int [key-path] (apply str ["+ (NSFetchRequest *)" key-path "IsEqualTo:(id)object;\n"]))
 
