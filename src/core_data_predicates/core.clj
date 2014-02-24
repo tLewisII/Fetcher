@@ -2,7 +2,7 @@
   (:gen-class)
   (require [clojure.xml :as xml])
   (require [clojure.zip :as zip])
-  (require [clojure.java.io])
+  (require [clojure.java.io :as io])
   (require [clojure.string :as string]))
 
 (defn -main
@@ -14,6 +14,13 @@
   (if (or (empty? args) (> (count args) 1))
     (do
       (println "No Model name given, you must provide the name of your CoreData model in the form `predicate modelName`")
+      (System/exit 0)
+      )
+    )
+
+  (if-not (.exists (io/as-file (str (first args) ".xcdatamodeld/" (first args) ".xcdatamodel/contents")))
+    (do
+      (println "No file exists at the given location, check the spelling of your model name")
       (System/exit 0)
       )
     )
