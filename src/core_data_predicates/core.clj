@@ -4,7 +4,8 @@
   (require [clojure.zip :as zip])
   (require [clojure.java.io :as io])
   (require [clojure.string :as string])
-  (require [core-data-predicates.isEqualInt :as is-equal]))
+  (require [core-data-predicates.isEqualInt :as is-equal])
+  (require [core-data-predicates.imports :as imports]))
 
 (defn -main
   [& args]
@@ -32,11 +33,7 @@
                                                               "\t[fetchRequest setPredicate:" "[NSPredicate predicateWithFormat:@\"" key-path " = " "%@\"" ", " "object]];\n"
                                                               "\treturn fetchRequest;\n}\n"))
 
-  (defn int-class-import [class-name] (str "#import \"" class-name ".h\"\n"))
 
-  (def int-imports (str "#import <CoreData/CoreData.h>\n" "#import <Foundation/Foundation.h>\n\n"))
-
-  (defn imp-imports [class-name] (str "#import" "\"" class-name "+_FetchRequests.h\"\n\n"))
 
   (try
     (def content (let [model-name (first args)] (xml-from-file (str model-name ".xcdatamodeld/" model-name ".xcdatamodel/contents"))))
@@ -58,10 +55,10 @@
    (doseq [lines content]
      (doseq [other (:content lines)]
        (when-let [class-name (:name (:attrs other))]
-         (spit (int-file-name-from-class class-name) (int-class-import class-name))
-         (spit (int-file-name-from-class class-name) int-imports :append true)
+         (spit (int-file-name-from-class class-name) (imports/int-class-import class-name))
+         (spit (int-file-name-from-class class-name) imports/int-imports :append true)
          (spit (int-file-name-from-class class-name) (inteface-dec class-name) :append true)
-         (spit (imp-file-name-from-class class-name) (imp-imports class-name))
+         (spit (imp-file-name-from-class class-name) (imports/imp-imports class-name))
          (spit (imp-file-name-from-class class-name) (imp-dec class-name) :append true)
          (doseq [final (:content other)]
            (let [key-paths (:name (:attrs final))]
