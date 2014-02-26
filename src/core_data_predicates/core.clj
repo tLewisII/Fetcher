@@ -23,14 +23,14 @@
       )
     )
 
-  (if-not (.exists (io/as-file (str (first args) ".xcdatamodeld/" (first args) ".xcdatamodel/contents")))
+  (if-not (-> (str (first args) ".xcdatamodeld/" (first args) ".xcdatamodel/contents") io/as-file .exists)
     (do
       (println "No file exists at the given location, check the spelling of your model name")
       (System/exit 0)
       )
     )
 
-  (defn xml-from-file [file] (zip/xml-zip (xml/parse file)))
+  (defn xml-from-file [file] (-> file xml/parse zip/xml-zip))
 
   (try
     (def content (let [model-name (first args)] (xml-from-file (str model-name ".xcdatamodeld/" model-name ".xcdatamodel/contents"))))
@@ -39,14 +39,14 @@
 
    (doseq [lines content]
      (doseq [other (:content lines)]
-       (when-let [class-name (:name (:attrs other))]
+       (when-let [class-name (-> other :attrs :name)]
          (spit (decl/int-file-name-from-class class-name) (imports/int-class-import class-name))
          (spit (decl/int-file-name-from-class class-name) imports/int-imports :append true)
          (spit (decl/int-file-name-from-class class-name) (decl/inteface-dec class-name) :append true)
          (spit (decl/imp-file-name-from-class class-name) (imports/imp-imports class-name))
          (spit (decl/imp-file-name-from-class class-name) (decl/imp-dec class-name) :append true)
          (doseq [final (:content other)]
-           (let [key-paths (:name (:attrs final))]
+           (let [key-paths (-> final :attrs :name)]
            (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths) :append true)
            (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths) :append true)
            (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths) :append true)))
@@ -56,7 +56,7 @@
 
   (doseq [lines content]
      (doseq [other (:content lines)]
-        (when-let [class-name (:name (:attrs other))]
+        (when-let [class-name (-> other :attrs :name)]
           (spit (decl/int-file-name-from-class class-name) "\n@end\n" :append true)
           (spit (decl/imp-file-name-from-class class-name) "\n@end\n" :append true)
           )
