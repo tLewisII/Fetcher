@@ -13,7 +13,8 @@
   [& args]
   ;; work around dangerous default behaviour in Clojure
   (alter-var-root #'*read-eval* (constantly false))
-
+  ;; Build a map of operators and method names to work through
+  ;;(def operators '["=" "<" ">" "<=" ">=" "!=" "BETWEEN" "BEGINSWITH" "CONTAINS" "ENDSWITH" "LIKE" "MATCHES"])
   ;; Must pass a model name or nothing will happen
   (if (or (empty? args) (> (count args) 1))
     (do
@@ -41,9 +42,9 @@
        (when-let [class-name (:name (:attrs other))]
          (spit (decl/int-file-name-from-class class-name) (imports/int-class-import class-name))
          (spit (decl/int-file-name-from-class class-name) imports/int-imports :append true)
-         (spit (decl/int-file-name-from-class class-name) (inteface-dec class-name) :append true)
+         (spit (decl/int-file-name-from-class class-name) (decl/inteface-dec class-name) :append true)
          (spit (decl/imp-file-name-from-class class-name) (imports/imp-imports class-name))
-         (spit (decl/imp-file-name-from-class class-name) (imp-dec class-name) :append true)
+         (spit (decl/imp-file-name-from-class class-name) (decl/imp-dec class-name) :append true)
          (doseq [final (:content other)]
            (let [key-paths (:name (:attrs final))]
            (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths) :append true)
@@ -56,8 +57,8 @@
   (doseq [lines content]
      (doseq [other (:content lines)]
         (when-let [class-name (:name (:attrs other))]
-          (spit (int-file-name-from-class class-name) "\n@end\n" :append true)
-          (spit (imp-file-name-from-class class-name) "\n@end\n" :append true)
+          (spit (decl/int-file-name-from-class class-name) "\n@end\n" :append true)
+          (spit (decl/imp-file-name-from-class class-name) "\n@end\n" :append true)
           )
        )
     )
