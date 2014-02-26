@@ -3,7 +3,8 @@
   (require [clojure.xml :as xml])
   (require [clojure.zip :as zip])
   (require [clojure.java.io :as io])
-  (require [clojure.string :as string]))
+  (require [clojure.string :as string])
+  (require [core-data-predicates.isEqualInt :as is-equal]))
 
 (defn -main
   [& args]
@@ -42,8 +43,6 @@
     (catch Exception e (println (.getMessage e)) (System/exit 0))
   )
 
-  (defn is-equal-from-keypath-int [key-path] (str "+ (NSFetchRequest *)" key-path "IsEqualTo:(id)object;\n"))
-
   (defn is-equal-from-keypath-imp-dec [key-path] (str "\n+ (NSFetchRequest *)" key-path "IsEqualTo:(id)object {\n"))
 
   (defn is-equal-from-keypath-imp [entity key-path] (imp-with-entity-keypath entity key-path))
@@ -66,7 +65,7 @@
          (spit (imp-file-name-from-class class-name) (imp-dec class-name) :append true)
          (doseq [final (:content other)]
            (let [key-paths (:name (:attrs final))]
-           (spit (int-file-name-from-class class-name) (is-equal-from-keypath-int key-paths) :append true)
+           (spit (int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths) :append true)
            (spit (imp-file-name-from-class class-name) (is-equal-from-keypath-imp-dec key-paths) :append true)
            (spit (imp-file-name-from-class class-name) (is-equal-from-keypath-imp class-name key-paths) :append true)))
        )
