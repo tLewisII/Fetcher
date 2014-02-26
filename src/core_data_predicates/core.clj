@@ -5,7 +5,8 @@
   (require [clojure.java.io :as io])
   (require [clojure.string :as string])
   (require [core-data-predicates.isEqualInt :as is-equal])
-  (require [core-data-predicates.imports :as imports]))
+  (require [core-data-predicates.imports :as imports])
+  (require [core-data-predicates.isEqualImp :as is-equal-imp]))
 
 (defn -main
   [& args]
@@ -29,20 +30,10 @@
 
   (defn xml-from-file [file] (zip/xml-zip (xml/parse file)))
 
-  (defn imp-with-entity-keypath [entity key-path] (str "\tNSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@\""  entity "\"];\n"
-                                                              "\t[fetchRequest setPredicate:" "[NSPredicate predicateWithFormat:@\"" key-path " = " "%@\"" ", " "object]];\n"
-                                                              "\treturn fetchRequest;\n}\n"))
-
-
-
   (try
     (def content (let [model-name (first args)] (xml-from-file (str model-name ".xcdatamodeld/" model-name ".xcdatamodel/contents"))))
     (catch Exception e (println (.getMessage e)) (System/exit 0))
   )
-
-  (defn is-equal-from-keypath-imp-dec [key-path] (str "\n+ (NSFetchRequest *)" key-path "IsEqualTo:(id)object {\n"))
-
-  (defn is-equal-from-keypath-imp [entity key-path] (imp-with-entity-keypath entity key-path))
 
   (defn int-file-name-from-class [class] (str class "+_FetchRequests.h"))
 
@@ -63,8 +54,8 @@
          (doseq [final (:content other)]
            (let [key-paths (:name (:attrs final))]
            (spit (int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths) :append true)
-           (spit (imp-file-name-from-class class-name) (is-equal-from-keypath-imp-dec key-paths) :append true)
-           (spit (imp-file-name-from-class class-name) (is-equal-from-keypath-imp class-name key-paths) :append true)))
+           (spit (imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths) :append true)
+           (spit (imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths) :append true)))
        )
      )
   )
