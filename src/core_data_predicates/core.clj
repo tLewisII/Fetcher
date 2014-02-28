@@ -9,28 +9,21 @@
   (require [core-data-predicates.isEqualImp :as is-equal-imp])
   (require [core-data-predicates.declarations :as decl]))
 
+(defn xml-from-file [file] (-> file xml/parse zip/xml-zip))
+
 (defn -main
   [& args]
-  ;; work around dangerous default behaviour in Clojure
-  (alter-var-root #'*read-eval* (constantly false))
   ;; Build a map of operators and method names to work through
   ;;(def operators '["=" "<" ">" "<=" ">=" "!=" "BETWEEN" "BEGINSWITH" "CONTAINS" "ENDSWITH" "LIKE" "MATCHES"])
   ;; Must pass a model name or nothing will happen
-  (if (or (empty? args) (> (count args) 1))
-    (do
-      (println "No Model name given, you must provide the name of your CoreData model in the form `predicate modelName`")
-      (System/exit 0)
-      )
-    )
+  (when (or (empty? args) (> (count args) 1))
+    (println "No Model name given, you must provide the name of your CoreData model in the form `predicate modelName`")
+    (System/exit 0))
 
   (if-not (-> (str (first args) ".xcdatamodeld/" (first args) ".xcdatamodel/contents") io/as-file .exists)
     (do
       (println "No file exists at the given location, check the spelling of your model name")
-      (System/exit 0)
-      )
-    )
-
-  (defn xml-from-file [file] (-> file xml/parse zip/xml-zip))
+      (System/exit 0)))
 
   (try
     (def content (let [model-name (first args)] (xml-from-file (str model-name ".xcdatamodeld/" model-name ".xcdatamodel/contents"))))
