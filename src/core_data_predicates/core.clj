@@ -12,9 +12,9 @@
 (defn xml-from-file [file] (-> file xml/parse zip/xml-zip))
 
 ;; Build a map of operators and method names to work through
-(def operators '[["=" "isEqualTo"] ["<" "isGreaterThan"] [">" "isLessThan"] ["<=" "greatThanOrEqualTo"] [">=" "lesserThanOrEqualTo"]
-                 ["!=" "isNotEqualTo"] ["BETWEEN" "between"] ["BEGINSWITH" "beginsWith"] ["CONTAINS" "contains"] ["ENDSWITH" "endsWith"]
-                 ["LIKE" "isLike"] ["MATCHES" "matches"]])
+(def operators '[["=" "IsEqualTo"] ["<" "IsGreaterThan"] [">" "IsLessThan"] ["<=" "GreatThanOrEqualTo"] [">=" "LesserThanOrEqualTo"]
+                 ["!=" "IsNotEqualTo"] ["BETWEEN" "Between"] ["BEGINSWITH" "BeginsWith"] ["CONTAINS" "Contains"] ["ENDSWITH" "EndsWith"]
+                 ["LIKE" "IsLike"] ["MATCHES" "Matches"]])
 
   (defn -main
   [& args]
@@ -42,7 +42,7 @@
          (doseq [final (:content other)]
            (let [key-paths (-> final :attrs :name)]
              (doseq [operator operators]
-               (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths) :append true)
+               (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths (second operator)) :append true)
                (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths (second operator)) :append true)
                (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths (first operator)) :append true)))))))
 
