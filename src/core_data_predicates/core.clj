@@ -12,11 +12,13 @@
 (defn xml-from-file [file] (-> file xml/parse zip/xml-zip))
 
 ;; Build a map of operators and method names to work through
-(def operators '[["=" "IsEqualTo"] ["<" "IsGreaterThan"] [">" "IsLessThan"] ["<=" "GreatThanOrEqualTo"] [">=" "LesserThanOrEqualTo"]
-                 ["!=" "IsNotEqualTo"] ["BETWEEN" "Between"] ["BEGINSWITH" "BeginsWith"] ["CONTAINS" "Contains"] ["ENDSWITH" "EndsWith"]
-                 ["LIKE" "IsLike"] ["MATCHES" "Matches"]])
+(def operators '[{:operator "=" :operation "IsEqualTo"} {:operator ">" :operation "IsGreaterThan"} {:operator "<" :operation "IsLessThan"}
+                 {:operator ">=" :operation "GreatThanOrEqualTo"} {:operator "<=" :operation "LesserThanOrEqualTo"}
+                 {:operator "!=" :operation "IsNotEqualTo"} {:operator "BETWEEN" :operation "Between"} {:operator "BEGINSWITH" :operation "BeginsWith"}
+                 {:operator "CONTAINS" :operation "Contains"} {:operator "ENDSWITH" :operation "EndsWith"}
+                 {:operator "LIKE" :operation "IsLike"} {:operator "MATCHES" :operation "Matches"}])
 
-  (defn -main
+(defn -main
   [& args]
   ;; Must pass a model name or nothing will happen
   (when (or (empty? args) (> (count args) 1))
@@ -31,23 +33,23 @@
     (def content (let [model-name (first args)] (xml-from-file (str model-name ".xcdatamodeld/" model-name ".xcdatamodel/contents"))))
     (catch Exception e (println (.getMessage e)) (System/exit 0)))
 
-    (doseq [lines content]
-     (doseq [other (:content lines)]
-       (when-let [class-name (-> other :attrs :name)]
-         (spit (decl/int-file-name-from-class class-name) (imports/int-class-import class-name))
-         (spit (decl/int-file-name-from-class class-name) imports/int-imports :append true)
-         (spit (decl/int-file-name-from-class class-name) (decl/inteface-dec class-name) :append true)
-         (spit (decl/imp-file-name-from-class class-name) (imports/imp-imports class-name))
-         (spit (decl/imp-file-name-from-class class-name) (decl/imp-dec class-name) :append true)
-         (doseq [final (:content other)]
-           (let [key-paths (-> final :attrs :name)]
-             (doseq [operator operators]
-               (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths (second operator)) :append true)
-               (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths (second operator)) :append true)
-               (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths (first operator)) :append true)))))))
+  (doseq [lines content]
+    (doseq [other (:content lines)]
+      (when-let [class-name (-> other :attrs :name)]
+        (spit (decl/int-file-name-from-class class-name) (imports/int-class-import class-name))
+        (spit (decl/int-file-name-from-class class-name) imports/int-imports :append true)
+        (spit (decl/int-file-name-from-class class-name) (decl/inteface-dec class-name) :append true)
+        (spit (decl/imp-file-name-from-class class-name) (imports/imp-imports class-name))
+        (spit (decl/imp-file-name-from-class class-name) (decl/imp-dec class-name) :append true)
+        (doseq [final (:content other)]
+          (let [key-paths (-> final :attrs :name)]
+            (doseq [operator operators]
+              (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths (:operation operator)) :append true)
+              (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths (:operation operator)) :append true)
+              (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths (:operator operator)) :append true)))))))
 
-    (doseq [lines content]
-      (doseq [other (:content lines)]
-        (when-let [class-name (-> other :attrs :name)]
-          (spit (decl/int-file-name-from-class class-name) "\n@end\n" :append true)
-          (spit (decl/imp-file-name-from-class class-name) "\n@end\n" :append true)))))
+  (doseq [lines content]
+    (doseq [other (:content lines)]
+      (when-let [class-name (-> other :attrs :name)]
+        (spit (decl/int-file-name-from-class class-name) "\n@end\n" :append true)
+        (spit (decl/imp-file-name-from-class class-name) "\n@end\n" :append true)))))
