@@ -11,10 +11,13 @@
 
 (defn xml-from-file [file] (-> file xml/parse zip/xml-zip))
 
+;; Build a map of operators and method names to work through
+(def operators '[["=" "isEqualTo"] ["<" "isGreaterThan"] [">" "isLessThan"] ["<=" "greatThanOrEqualTo"] [">=" "lesserThanOrEqualTo"]
+                 ["!=" "isNotEqualTo"] ["BETWEEN" "between"] ["BEGINSWITH" "beginsWith"] ["CONTAINS" "contains"] ["ENDSWITH" "endsWith"]
+                 ["LIKE" "isLike"] ["MATCHES" "matches"]])
+
   (defn -main
   [& args]
-  ;; Build a map of operators and method names to work through
-  ;;(def operators '["=" "<" ">" "<=" ">=" "!=" "BETWEEN" "BEGINSWITH" "CONTAINS" "ENDSWITH" "LIKE" "MATCHES"])
   ;; Must pass a model name or nothing will happen
   (when (or (empty? args) (> (count args) 1))
     (println "No Model name given, you must provide the name of your CoreData model in the form `predicate modelName`")
@@ -38,9 +41,10 @@
          (spit (decl/imp-file-name-from-class class-name) (decl/imp-dec class-name) :append true)
          (doseq [final (:content other)]
            (let [key-paths (-> final :attrs :name)]
-             (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths) :append true)
-             (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths) :append true)
-             (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths) :append true))))))
+             (doseq [operator operators]
+               (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths) :append true)
+               (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths (second operator)) :append true)
+               (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths (first operator)) :append true)))))))
 
     (doseq [lines content]
       (doseq [other (:content lines)]
