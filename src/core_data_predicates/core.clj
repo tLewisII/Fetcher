@@ -44,16 +44,17 @@
         (spit (decl/imp-file-name-from-class class-name) (imports/imp-imports class-name))
         (spit (decl/imp-file-name-from-class class-name) (decl/imp-dec class-name) :append true)
         (doseq [final (:content other)]
-          (let [key-paths (-> final :attrs :name) attributeType (-> final :attrs :attributeType)]
-            (doseq [operator operators]
-              (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths (:operation operator)) :append true)
-              (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths (:operation operator)) :append true)
-              (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths (:operator operator)) :append true))
-            (if (.equals "String" attributeType)
-              (doseq [string-op string-operators]
-                (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths (:operation string-op)) :append true)
-                (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths (:operation string-op)) :append true)
-                (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths (:operator string-op)) :append true))))))))
+          (let [key-paths (-> final :attrs :name) attributeType (-> final :attrs :attributeType) relationship (-> final :attrs :toMany)]
+            (when (nil? relationship)
+              (doseq [operator operators]
+                (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths (:operation operator)) :append true)
+                (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths (:operation operator)) :append true)
+                (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths (:operator operator)) :append true))
+              (if (.equals "String" attributeType)
+                (doseq [string-op string-operators]
+                  (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths (:operation string-op)) :append true)
+                  (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths (:operation string-op)) :append true)
+                  (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths (:operator string-op)) :append true)))))))))
 
   ;; create the @end directive at the end of the file
   (doseq [lines content]
