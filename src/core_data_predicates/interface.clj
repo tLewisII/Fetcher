@@ -1,4 +1,4 @@
-(ns core-data-predicates.isEqualInt)
+(ns core-data-predicates.interface)
 
 (defn is-equal-from-keypath-int [key-path operation] (str "+ (NSArray *)" key-path operation
                                                           ":(id)object inContext:(NSManagedObjectContext *)context"

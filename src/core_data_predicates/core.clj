@@ -4,9 +4,9 @@
   (require [clojure.zip :as zip])
   (require [clojure.java.io :as io])
   (require [clojure.string :as string])
-  (require [core-data-predicates.isEqualInt :as is-equal])
+  (require [core-data-predicates.interface :as interface])
   (require [core-data-predicates.imports :as imports])
-  (require [core-data-predicates.isEqualImp :as is-equal-imp])
+  (require [core-data-predicates.implementation :as implementation])
   (require [core-data-predicates.declarations :as decl]))
 
 (defn xml-from-file [file] (-> file xml/parse zip/xml-zip))
@@ -47,14 +47,14 @@
           (let [key-paths (-> final :attrs :name) attributeType (-> final :attrs :attributeType) relationship (-> final :attrs :toMany)]
             (when (nil? relationship)
               (doseq [operator operators]
-                (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths (:operation operator)) :append true)
-                (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths (:operation operator)) :append true)
-                (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths (:operator operator)) :append true))
+                (spit (decl/int-file-name-from-class class-name) (interface/is-equal-from-keypath-int key-paths (:operation operator)) :append true)
+                (spit (decl/imp-file-name-from-class class-name) (implementation/is-equal-from-keypath-imp-dec key-paths (:operation operator)) :append true)
+                (spit (decl/imp-file-name-from-class class-name) (implementation/is-equal-from-keypath-imp class-name key-paths (:operator operator)) :append true))
               (if (.equals "String" attributeType)
                 (doseq [string-op string-operators]
-                  (spit (decl/int-file-name-from-class class-name) (is-equal/is-equal-from-keypath-int key-paths (:operation string-op)) :append true)
-                  (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp-dec key-paths (:operation string-op)) :append true)
-                  (spit (decl/imp-file-name-from-class class-name) (is-equal-imp/is-equal-from-keypath-imp class-name key-paths (:operator string-op)) :append true)))))))))
+                  (spit (decl/int-file-name-from-class class-name) (interface/is-equal-from-keypath-int key-paths (:operation string-op)) :append true)
+                  (spit (decl/imp-file-name-from-class class-name) (implementation/is-equal-from-keypath-imp-dec key-paths (:operation string-op)) :append true)
+                  (spit (decl/imp-file-name-from-class class-name) (implementation/is-equal-from-keypath-imp class-name key-paths (:operator string-op)) :append true)))))))))
 
   ;; create the @end directive at the end of the file
   (doseq [lines content]
