@@ -1,7 +1,22 @@
 # core-data-predicates
 
 Generates fetch requests for the entities and properties in a CoreData Model
-file. Stringly typed code is bad, and this does not get rid of it, but it at
+file. Outputs methods on a category of your entities that look like this:
+```
++ (NSArray *)nameIsEqualTo:(id)object inContext:(NSManagedObjectContext *)context sortDescriptors:(NSArray *)sort error:(void(^)(NSError *error))error {
+	NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"TJLSuperEntity"];
+	[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"name = %@", object]];
+	[fetchRequest setSortDescriptors:sort];
+	NSError *err = nil;
+	NSArray *results = [context executeFetchRequest:fetchRequest error:&err];
+	if(err && error) {
+		error(err);
+		return nil;
+	}
+	return results;
+}
+```
+Stringly typed code is bad, and this does not get rid of it, but it at
 least has a machine generate it, which makes it more reliable than typing it
 out by hand.
 
@@ -12,18 +27,12 @@ Using [Homebrew](http://brew.sh/) simply `brew install leiningen` and once that 
 
 ## Usage
 
-FIXME: explanation
-
     $ java -jar core-data-predicates-0.1.0-standalone.jar [ModelFileName]
 Simply pass the name of the Model file you wish to generate requests for, without any extensions and core-data-predicates will do the rest.
 
 ## Options
 
-Currently, there are no options available, but there might be some in the future. If you have any suggestions, create an issue.
-
-### Bugs
-
-Not exactly a bug, but currently requests are generated for to-many relationships, where in practice I would imagine these would not ever be used.
+Currently, there are no options that you can pass, but there might be some in the future. If you have any suggestions, create an issue.
 
 ## License
 
