@@ -1,4 +1,4 @@
-(ns core-data-predicates.imports)
+(ns fetcher.imports)
 
 (defn int-class-import [class-name] (str "#import \"" class-name ".h\"\n"))
 

@@ -1,4 +1,4 @@
-(ns core-data-predicates.implementation)
+(ns fetcher.implementation)
 
 (defn is-equal-from-keypath-imp-dec [key-path operation] (str "\n+ (NSArray *)" key-path operation ":(id)object inContext:(NSManagedObjectContext *)context"
                                                               " sortDescriptors:(NSArray *)sort error:(void(^)(NSError *error))error {\n"))

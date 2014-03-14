@@ -1,13 +1,13 @@
-(ns core-data-predicates.core
+(ns fetcher.core
   (:gen-class)
   (require [clojure.xml :as xml])
   (require [clojure.zip :as zip])
   (require [clojure.java.io :as io])
   (require [clojure.string :as string])
-  (require [core-data-predicates.interface :as interface])
-  (require [core-data-predicates.imports :as imports])
-  (require [core-data-predicates.implementation :as implementation])
-  (require [core-data-predicates.declarations :as decl]))
+  (require [fetcher.interface :as interface])
+  (require [fetcher.imports :as imports])
+  (require [fetcher.implementation :as implementation])
+  (require [fetcher.declarations :as decl]))
 
 (defn xml-from-file [file] (-> file xml/parse zip/xml-zip))
 

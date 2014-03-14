@@ -1,4 +1,4 @@
-(ns core-data-predicates.declarations)
+(ns fetcher.declarations)
 
 (defn int-file-name-from-class [class-name] (str class-name "+_FetchRequests.h"))
 
