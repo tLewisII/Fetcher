@@ -23,7 +23,7 @@ out by hand.
 ## Installation
 
 The easiest way to currently install Fetcher is to download it and build it from the source. It is written in [Clojure](http://clojure.org), but can be compiled into a .jar file using [leiningen](http://leiningen.org).
-Using [Homebrew](http://brew.sh/) simply `brew install leiningen` and once that is finished do run `lein uberjar` which will compile the source into a .jar file that you can use.
+Using [Homebrew](http://brew.sh/) simply `brew install leiningen` and once that is finished  run `lein uberjar` in the root directory of the project and it will compile the source into a .jar file that you can use.
 
 ## Usage
 
