@@ -32,7 +32,7 @@ Simply pass the name of the Model file you wish to generate requests for, withou
 
 ## Options
 
-Currently, there are no options that you can pass, but there might be some in the future. If you have any suggestions, create an issue.
+Currently, the only options available are -V or --version to get the version number.
 
 ## License
 
