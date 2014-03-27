@@ -20,8 +20,16 @@
                         {:operator "CONTAINS" :operation "Contains"} {:operator "ENDSWITH" :operation "EndsWith"}
                         {:operator "LIKE" :operation "IsLike"} {:operator "MATCHES" :operation "Matches"}])
 
+(def options {"-V" "Fetcher 0.1.0" "--version" "Fetcher 0.1.0"})
+
 (defn -main
   [& args]
+
+  ;; Options
+  (when (or  (-> args first options) (-> args first options))
+    (println "Fetcher 0.1.0")
+    (System/exit 0))
+
   ;; Must pass a model name or nothing will happen
   (when (or (empty? args) (> (count args) 1))
     (println "No Model name given, you must provide the name of your CoreData model in the form `predicate modelName`")
