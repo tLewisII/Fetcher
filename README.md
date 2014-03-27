@@ -1,35 +1,41 @@
-# core-data-predicates
+# Fetcher
 
-FIXME: description
+Generates fetch requests for the entities and properties in a CoreData Model
+file. Outputs methods on a category of your entities that look like this:
+```
++ (NSArray *)nameIsEqualTo:(id)object inContext:(NSManagedObjectContext *)context sortDescriptors:(NSArray *)sort error:(void(^)(NSError *error))error {
+	NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"TJLSuperEntity"];
+	[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"name = %@", object]];
+	[fetchRequest setSortDescriptors:sort];
+	NSError *err = nil;
+	NSArray *results = [context executeFetchRequest:fetchRequest error:&err];
+	if(err && error) {
+		error(err);
+		return nil;
+	}
+	return results;
+}
+```
+Stringly typed code is bad, and this does not get rid of it, but it at
+least has a machine generate it, which makes it more reliable than typing it
+out by hand.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+The easiest way to currently install Fetcher is to download it and build it from the source. It is written in [Clojure](http://clojure.org), but can be compiled into a .jar file using [leiningen](http://leiningen.org).
+Using [Homebrew](http://brew.sh/) simply `brew install leiningen` and once that is finished  run `lein uberjar` in the root directory of the project and it will compile the source into a .jar file that you can use.
 
 ## Usage
 
-FIXME: explanation
-
-    $ java -jar core-data-predicates-0.1.0-standalone.jar [args]
+    $ java -jar Fetcher-0.1.0-standalone.jar [ModelFileName]
+Simply pass the name of the Model file you wish to generate requests for, without any extensions and Fetcher will do the rest.
 
 ## Options
 
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+Currently, the only options available are -V or --version to get the version number.
 
 ## License
 
-Copyright © 2014 FIXME
+Copyright © 2014 Terry Lewis II
 
 Distributed under the Eclipse Public License, the same as Clojure.
